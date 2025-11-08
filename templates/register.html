@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+
+<body class="index-page">
+  <!-- Background blobs -->
+  <div class="blob"></div>
+  <div class="blob2"></div>
+
+  <!-- Register container -->
+  <div class="glass-container">
+    <h1 id="heading">Register</h1>
+    <br>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for message in messages %}
+            <p class="flash alert-danger">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Register form -->
+    <form method="POST" action="{{ url_for('register') }}">
+      <div class="content">
+        <label for="username">Username:</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          class="form-input"
+          required
+        />
+
+        <label for="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-input"
+          required
+        />
+
+        <label for="role">Role:</label>
+        <select
+          id="role"
+          name="role"
+          class="form-input"
+          onchange="toggleFields()"
+          required
+        >
+          <option value="student" selected>Student</option>
+          <option value="staff">Staff</option>
+        </select>
+
+        <!-- Fields for Student Role -->
+        <div id="student_fields">
+          <label for="full_name">Full Name:</label>
+          <input
+            type="text"
+            id="full_name"
+            name="full_name"
+            class="form-input"
+            required
+          />
+
+          <label for="roll_number">Roll Number:</label>
+          <input
+            type="text"
+            id="roll_number"
+            name="roll_number"
+            class="form-input"
+            required
+          />
+
+          <label for="class_name">Class:</label>
+          <input
+            type="text"
+            id="class_name"
+            name="class_name"
+            class="form-input"
+            required
+          />
+        </div>
+
+        <!-- MODIFIED: Fields for Staff Role -->
+        <div id="staff_fields" style="display: none;">
+          <label for="subject">Subject:</label>
+          <select id="subject" name="subject" class="form-input">
+            <option value="" disabled selected>Select Subject</option>
+            <option value="Data Structures & Algorithms">Data Structures & Algorithms</option>
+            <option value="Operating Systems">Operating Systems</option>
+            <option value="Database Management Systems">Database Management Systems</option>
+            <option value="Computer Networks">Computer Networks</option>
+            <option value="Artificial Intelligence">Artificial Intelligence</option>
+            <option value="other">None of the above</option>
+          </select>
+        </div>
+        
+        <!-- NEW: Hidden container for the custom subject text input -->
+        <div id="custom_subject_container" style="display: none; margin-top: 10px;">
+          <label for="custom_subject">Please specify your subject:</label>
+          <input type="text" id="custom_subject" name="custom_subject" class="form-input" />
+        </div>
+        <!-- End of new fields -->
+
+        <input type="submit" class="btn btn-login" value="Register" />
+      </div>
+    </form>
+
+    <p id="registertxt">
+      Already have an account? <br />
+      <a href="{{ url_for('login') }}">Login here</a>
+    </p>
+  </div>
+
+  <script>
+    function toggleFields() {
+      const role = document.getElementById("role").value;
+      const studentFields = document.getElementById("student_fields");
+      const staffFields = document.getElementById("staff_fields");
+      const subjectSelect = document.getElementById("subject");
+      const customSubjectContainer = document.getElementById('custom_subject_container');
+
+      // Logic to show/hide fields based on role
+      if (role === "staff") {
+        studentFields.style.display = "none";
+        staffFields.style.display = "block";
+        document.getElementById("full_name").required = false;
+        document.getElementById("roll_number").required = false;
+        document.getElementById("class_name").required = false;
+        subjectSelect.required = true;
+      } else {
+        studentFields.style.display = "block";
+        staffFields.style.display = "none";
+        customSubjectContainer.style.display = 'none'; // Also hide custom field
+        document.getElementById("full_name").required = true;
+        document.getElementById("roll_number").required = true;
+        document.getElementById("class_name").required = true;
+        subjectSelect.required = false;
+      }
+    }
+
+    // Handle default selected role on page load
+    window.onload = toggleFields;
+
+    // --- NEW SCRIPT FOR CUSTOM SUBJECT ---
+    const subjectSelect = document.getElementById('subject');
+    const customSubjectContainer = document.getElementById('custom_subject_container');
+    const customSubjectInput = document.getElementById('custom_subject');
+
+    subjectSelect.addEventListener('change', function () {
+      if (this.value === 'other') {
+        // Show the custom input field
+        customSubjectContainer.style.display = 'block';
+        customSubjectInput.required = true;
+        // The text input's value will be sent as 'subject'
+        customSubjectInput.name = 'subject'; 
+        // The dropdown's name is cleared so it isn't sent
+        subjectSelect.name = ''; 
+      } else {
+        // Hide the custom input field
+        customSubjectContainer.style.display = 'none';
+        customSubjectInput.required = false;
+        // Restore the original names so the dropdown value is sent
+        subjectSelect.name = 'subject'; 
+        customSubjectInput.name = 'custom_subject';
+      }
+    });
+  </script>
+</body>
+</html>
